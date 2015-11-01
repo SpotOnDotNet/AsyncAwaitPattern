@@ -15,7 +15,7 @@ namespace WebApiHost.Controllers
 
             string result = await dotNet45Task.ASyncCallWithContinuation().ConfigureAwait(false);
 
-            var httpContext = HttpContext.Current;
+            var httpContext = HttpContext.Current; // fix: remove .ConfigureAwait(false) above
 
             return new string[] { "value1", "value2" };
         }

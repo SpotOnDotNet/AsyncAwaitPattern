@@ -29,7 +29,7 @@ namespace LegacyExamples
         {
             Task<WebResponse> serviceCallTask = CallService();
 
-            // serviceCallTask.Wait();
+            // serviceCallTask.Wait(); // no need to use .Wait() because .Result blocks by itself
 
             HttpWebResponse response = (HttpWebResponse)serviceCallTask.Result;
 
@@ -48,7 +48,7 @@ namespace LegacyExamples
                 }
 
                 return "ok";
-            }, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
+            }); // fix: }, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default
         }
 
         public Task<string> BackgroundProcessingAlternative()

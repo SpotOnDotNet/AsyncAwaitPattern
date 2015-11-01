@@ -15,42 +15,39 @@ namespace CurrentExamples
         {
             // some logic here
 
-            string result = await CallService();
+            string result = await CallService(); // fix: await CallService().ContinueAwait(false);
 
             // some logic here
 
             return result;
         }
 
-        public string HiddenAsyncCallWithBlock()
+        public string HiddenAsyncCallWithBlock() // fix: public async Task<string> HiddenAsyncCallWithBlock()
         {
             Task<string> task1 = ASyncCallWithContinuation();
             Task<string> task2 = ASyncCallWithContinuation();
 
-            Task.WaitAll(task1, task2);
+            Task.WaitAll(task1, task2); // fix: await Task.WhenAll(task1, task2).ConfigureAwait(false);
 
-            return task1.Result + task2.Result;
+            return task1.Result + task2.Result; // fix: return await task1.ConfigureAwait(false) + await task2.ConfigureAwait(false);
         }
 
-        public async void AsyncVoidCall()
-        {
-            Task<string> task1 = ASyncCallWithContinuation();
-            Task<string> task2 = ASyncCallWithContinuation();
-
-            await Task.WhenAll(task1, task1).ConfigureAwait(false);
-
-            // some logic here
-        }
-
-        public async Task<string> ASyncCallWithException()
+        public async Task ASyncCallWithException()
         {
             // some logic here
 
-            string result = await CallServiceWithException().ConfigureAwait(false);
+            await CallServiceWithException().ConfigureAwait(false);
 
             // some logic here
+        }
 
-            return result;
+        public async void ASyncVoidCallWithException() // fix: public async Task ASyncVoidCallWithException()
+        {
+            // some logic here
+
+            await CallServiceWithException().ConfigureAwait(false);
+
+            // some logic here
         }
 
         public Task<string> BackgroundProcessing(CancellationToken cancellationToken)
@@ -108,7 +105,7 @@ namespace CurrentExamples
             return httpClient.GetStringAsync($"http://localhost:8088/slow/?seconds={delay}");
         }
 
-        Task<string> CallServiceWithException()
+        Task CallServiceWithException()
         {
             throw new InvalidOperationException("some exception");
         }

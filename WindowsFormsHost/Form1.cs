@@ -72,7 +72,7 @@ namespace WindowsFormsHost
                 var returningThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
                 MessageBox.Show(task.Result);
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            }); // fix: }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private async void button6_Click(object sender, EventArgs e)
@@ -88,9 +88,11 @@ namespace WindowsFormsHost
 
         private void button7_Click(object sender, EventArgs e)
         {
+            // let's assume that we can't change method signature to async so we need to use blocking
+
             var entryThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
-            string result = dotNet45Task.ASyncCallWithContinuation().Result;
+            string result = dotNet45Task.ASyncCallWithContinuation().Result; // fix: see DotNet45TaskExamples.ASyncCallWithContinuation() source
 
             var returningThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
@@ -99,16 +101,17 @@ namespace WindowsFormsHost
 
         private void button8_Click(object sender, EventArgs e)
         {
-            string result = dotNet45Task.HiddenAsyncCallWithBlock();
+            string result = dotNet45Task.HiddenAsyncCallWithBlock(); // fix: see DotNet45TaskExamples.HiddenAsyncCallWithBlock() source
 
             MessageBox.Show(result);
         }
 
         private void button9_Click(object sender, EventArgs e)
         {
-            string result = dotNet45Task.ASyncCallWithException().Result;
+            dotNet45Task.ASyncCallWithException().Wait();
+            // fix: change .Wait() to .GetAwaiter().GetResult() if we have to block or await dotNet45Task.ASyncCallWithException() if we can use async
 
-            MessageBox.Show(result);
+            // here try also: dotNet45Task.ASyncVoidCallWithException().Wait(), for fix see DotNet45TaskExamples.ASyncVoidCallWithException() source
         }
 
         private void button10_Click(object sender, EventArgs e)
@@ -124,7 +127,8 @@ namespace WindowsFormsHost
             {
                 var returningThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
-                dotNet4Task.BackgroundProcessing();
+                // second call - watch thread info
+                dotNet4Task.BackgroundProcessing(); // fix: see DotNet4TaskExamples.BackgroundProcessing() source
 
                 MessageBox.Show(task.Result);
             }, TaskScheduler.FromCurrentSynchronizationContext());
@@ -136,12 +140,12 @@ namespace WindowsFormsHost
 
             var processingCancellation = new CancellationTokenSource();
 
-            //processingCancellation.Cancel();
+            //processingCancellation.Cancel(); // causes TaskCancelledException
 
             Task<string> processingTask = dotNet45Task.BackgroundProcessing(processingCancellation.Token);
 
             //Thread.Sleep(2000);
-            //processingCancellation.Cancel();
+            //processingCancellation.Cancel(); // causes OperationCancelledException
 
             string result = await processingTask;
 
