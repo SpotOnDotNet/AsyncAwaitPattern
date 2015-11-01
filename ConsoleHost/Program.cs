@@ -12,6 +12,7 @@ namespace ConsoleHost
         {
             var entryThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
+            // shows how to block the execution when it's not possible to mark containing method as async
             string result = dotNet45Task.ASyncCallWithContinuation().GetAwaiter().GetResult();
 
             var returningThreadInfo = ThreadInfo.GetCurrentThreadInfo();

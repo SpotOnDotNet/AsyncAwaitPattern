@@ -24,6 +24,8 @@ namespace WindowsFormsHost
 
         private void button1_Click(object sender, EventArgs e)
         {
+            // shows how asynchronous I/O should NOT be implemented :)
+
             string result = preTask.BlockingCall();
 
             MessageBox.Show(result);
@@ -31,6 +33,8 @@ namespace WindowsFormsHost
 
         private void button2_Click(object sender, EventArgs e)
         {
+            // shows how asynchronous I/O executes using I/O completion ports (watch debug output), but still blocks executing thread
+
             var entryThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
             string result = preTask.AsyncCallWithWait();
@@ -42,6 +46,8 @@ namespace WindowsFormsHost
 
         private void button3_Click(object sender, EventArgs e)
         {
+            // shows how asynchronous programming was in APM (callback hell and synchronization problems)
+
             var entryThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
             preTask.ASyncCallWithCallback(result =>
@@ -54,6 +60,8 @@ namespace WindowsFormsHost
 
         private void button4_Click(object sender, EventArgs e)
         {
+            // shows blocking TPM approach to asynchronous calls (no gain over APM)
+
             var entryThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
             string result = dotNet4Task.AsyncCallWithWait();
@@ -65,6 +73,8 @@ namespace WindowsFormsHost
 
         private void button5_Click(object sender, EventArgs e)
         {
+            // shows non blocking TPM approach to asynchronous calls (but still with callbacks and synchronization problems)
+
             var entryThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
             dotNet4Task.ASyncCallWithContinuation().ContinueWith(task =>
@@ -77,6 +87,8 @@ namespace WindowsFormsHost
 
         private async void button6_Click(object sender, EventArgs e)
         {
+            // shows how using async/await can simplify asynchronous calls (and context synchronization)
+
             var entryThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
             string result = await dotNet45Task.ASyncCallWithContinuation();
@@ -88,6 +100,8 @@ namespace WindowsFormsHost
 
         private void button7_Click(object sender, EventArgs e)
         {
+            // shows how default context synchronization used in conjunction with blocking can cause a deadlock
+
             // let's assume that we can't change method signature to async so we need to use blocking
 
             var entryThreadInfo = ThreadInfo.GetCurrentThreadInfo();
@@ -101,6 +115,8 @@ namespace WindowsFormsHost
 
         private void button8_Click(object sender, EventArgs e)
         {
+            // shows why asynchronous call blocking (to provide synchronous API) should be avoided (again - deadlock)
+
             string result = dotNet45Task.HiddenAsyncCallWithBlock(); // fix: see DotNet45TaskExamples.HiddenAsyncCallWithBlock() source
 
             MessageBox.Show(result);
@@ -108,19 +124,25 @@ namespace WindowsFormsHost
 
         private void button9_Click(object sender, EventArgs e)
         {
+            // shows how .NET 4.5 Task API is better at exception handling than .NET 4.0 API (and also why async void is evil)
+
             dotNet45Task.ASyncCallWithException().Wait();
             // fix: change .Wait() to .GetAwaiter().GetResult() if we have to block or await dotNet45Task.ASyncCallWithException() if we can use async
 
-            // here try also: dotNet45Task.ASyncVoidCallWithException().Wait(), for fix see DotNet45TaskExamples.ASyncVoidCallWithException() source
+            // try calling: dotNet45Task.ASyncVoidCallWithException().Wait(), for fix see DotNet45TaskExamples.ASyncVoidCallWithException() source
         }
 
         private void button10_Click(object sender, EventArgs e)
         {
+            // shows oldschool approach to ThreadPool processing ;)
+
             preTask.BackgroundProcessing();
         }
 
         private void button11_Click(object sender, EventArgs e)
         {
+            // shows why Task.Factory.StartNew default settings are dangerous
+
             var entryThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
             dotNet4Task.BackgroundProcessing().ContinueWith(task =>
@@ -136,6 +158,8 @@ namespace WindowsFormsHost
 
         private async void button12_Click(object sender, EventArgs e)
         {
+            // shows how to perform ThreadPool calculations in .NET 4.5
+
             var entryThreadInfo = ThreadInfo.GetCurrentThreadInfo();
 
             var processingCancellation = new CancellationTokenSource();
@@ -156,6 +180,8 @@ namespace WindowsFormsHost
 
         private async void button13_Click(object sender, EventArgs e)
         {
+            // shows how to implement timeout handling in asynchronous operations
+
             string result = await dotNet45Task.BackgroundProcessingWithTimeout(2000);
 
             MessageBox.Show(result);
